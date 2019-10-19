@@ -13,7 +13,7 @@ sudo apt-get install openjdk-11-jre curl jq
 ## To start logstash with logstash.conf:
 
 ```
-cp logstash.conf logstash-X.Y.Z/config
+cp logstash.conf logstash-X.Y.Z/config/
 ./logstash-X.Y.Z/bin/logstash -f ./logstash-X.Y.Z/config/logstash.conf
 ```
 
