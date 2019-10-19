@@ -1,0 +1,25 @@
+logging.metrics.enabled: false
+setup.template.enable: false
+xpack.monitoring.enabled: false
+
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /tmp/datascan.json
+  fields:
+    onyphe_index: "datascan"
+
+processors:
+  - include_fields:
+      fields: ["message","fields"]
+  - decode_json_fields:
+      fields: ["message"]
+      process_array: false
+      target: ""
+      overwrite_keys: true
+  - drop_fields:
+      fields: ["message"]
+
+output.logstash:
+  hosts: ["localhost:5044"]
