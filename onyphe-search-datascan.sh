@@ -10,6 +10,10 @@ if [ -z "$SEARCH" ]; then
 fi
 
 MAX_PAGE=`curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://www.onyphe.io/api/v2/search/category:datascan%20$SEARCH" | jq .max_page`
+if [ "$MAX_PAGE" = "null" ]; then
+	echo "*** No result, aborting"
+	exit 2
+fi
 
 echo "*** Last page: $MAX_PAGE"
 
