@@ -14,40 +14,40 @@ sudo apt-get install openjdk-11-jre curl jq
 
 ```
 cd
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.6.1-linux-x86_64.tar.gz 
-wget https://artifacts.elastic.co/downloads/kibana/kibana-7.6.1-linux-x86_64.tar.gz 
-wget https://artifacts.elastic.co/downloads/logstash/logstash-7.6.1.tar.gz  
-wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.1-linux-x86_64.tar.gz 
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.2-linux-x86_64.tar.gz 
+wget https://artifacts.elastic.co/downloads/kibana/kibana-7.9.2-linux-x86_64.tar.gz 
+wget https://artifacts.elastic.co/downloads/logstash/logstash-7.9.2.tar.gz  
+wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.9.2-linux-x86_64.tar.gz 
 ```
 
 ### Install and launch Elasticsearch
 
 ```
 cd
-tar zxvf elasticsearch-7.6.1-linux-x86_64.tar.gz 
-./elasticsearch-7.6.1/bin/elasticsearch
+tar zxvf elasticsearch-7.9.2-linux-x86_64.tar.gz 
+./elasticsearch-7.9.2/bin/elasticsearch
 ```
 
 ### Install and launch Kibana
 
 ```
 cd
-tar zxvf kibana-7.6.1-linux-x86_64.tar.gz
-./kibana-7.6.1-linux-x86_64/bin/kibana
+tar zxvf kibana-7.9.2-linux-x86_64.tar.gz
+./kibana-7.9.2-linux-x86_64/bin/kibana
 ```
 
 ### Install Logstash
 
 ```
 cd
-tar zxvf logstash-7.6.1.tar.gz
+tar zxvf logstash-7.9.2.tar.gz
 ```
 
 ### Install Filebeat
 
 ```
 cd
-tar zxvf filebeat-7.6.1-linux-x86_64.tar.gz
+tar zxvf filebeat-7.9.2-linux-x86_64.tar.gz
 ```
 
 ## Configuring components
@@ -57,8 +57,8 @@ tar zxvf filebeat-7.6.1-linux-x86_64.tar.gz
 ```
 cd
 wget https://raw.githubusercontent.com/onyphe/training/master/logstash.conf
-mv logstash.conf logstash-7.6.1/config/
-./logstash-7.6.1/bin/logstash -f ./logstash-7.6.1/config/logstash.conf
+mv logstash.conf logstash-7.9.2/config/
+./logstash-7.9.2/bin/logstash -f ./logstash-7.9.2/config/logstash.conf
 ```
 
 ### Configuring and starting Filebeat
@@ -66,7 +66,7 @@ mv logstash.conf logstash-7.6.1/config/
 ```
 cd
 wget https://raw.githubusercontent.com/onyphe/training/master/filebeat.yml
-mv filebeat.yml filebeat-7.6.1-linux-x86_64/
-./filebeat-7.6.1-linux-x86_64/filebeat --path.config ./filebeat-7.6.1-linux-x86_64 &
-tail -f filebeat-7.6.1-linux-x86_64/logs/filebeat
+mv filebeat.yml filebeat-7.9.2-linux-x86_64/
+./filebeat-7.9.2-linux-x86_64/filebeat --path.config ./filebeat-7.9.2-linux-x86_64 &
+tail -f filebeat-7.9.2-linux-x86_64/logs/filebeat
 ```
