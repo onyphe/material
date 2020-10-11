@@ -6,9 +6,87 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
+    - /tmp/ctl.json
+  fields:
+    onyphe_index: "ctl"
+- type: log
+  enabled: true
+  paths:
     - /tmp/datascan.json
   fields:
     onyphe_index: "datascan"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/datashot.json
+  fields:
+    onyphe_index: "datashot"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/geoloc.json
+  fields:
+    onyphe_index: "geoloc"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/inetnum.json
+  fields:
+    onyphe_index: "inetnum"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/onionscan.json
+  fields:
+    onyphe_index: "onionscan"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/onionshot.json
+  fields:
+    onyphe_index: "onionshot"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/pastries.json
+  fields:
+    onyphe_index: "pastries"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/resolver.json
+  fields:
+    onyphe_index: "resolver"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/sniffer.json
+  fields:
+    onyphe_index: "sniffer"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/synscan.json
+  fields:
+    onyphe_index: "synscan"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/threatlist.json
+  fields:
+    onyphe_index: "threatlist"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/topsite.json
+  fields:
+    onyphe_index: "topsite"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/vulnscan.json
+  fields:
+    onyphe_index: "vulnscan"
 
 processors:
   - include_fields:
