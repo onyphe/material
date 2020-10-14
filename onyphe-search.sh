@@ -12,7 +12,7 @@ fi
 if [[ "$SEARCH" =~ category:([a-z]+) ]]; then
 	CATEGORY="${BASH_REMATCH[1]}"
 else
-	echo "*** ERROR: please start your search category:CATEGORY"
+	echo "*** ERROR: please start your search with category:CATEGORY"
 	exit 2
 fi
 
