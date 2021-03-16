@@ -17,9 +17,13 @@ else
 fi
 
 MAX_PAGE=`curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://www.onyphe.io/api/v2/search/$SEARCH" | jq .max_page`
+if [ -z "$MAX_PAGE" ]; then
+   echo "*** No result, aborting"
+   exit 3
+fi
 if [ "$MAX_PAGE" = "null" ]; then
-	echo "*** No result, aborting"
-	exit 3
+   echo "*** No result, aborting"
+   exit 4
 fi
 
 echo "*** Last page: $MAX_PAGE"
