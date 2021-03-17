@@ -87,6 +87,12 @@ filebeat.inputs:
     - /tmp/vulnscan.json
   fields:
     onyphe_index: "vulnscan"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/whois.json
+  fields:
+    onyphe_index: "whois"
 
 processors:
   - include_fields:
