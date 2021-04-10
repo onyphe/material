@@ -16,7 +16,7 @@ else
    exit 2
 fi
 
-MAX_PAGE=`curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://beta.onyphe.io/testapi/v2/search/$SEARCH" | jq .max_page`
+MAX_PAGE=`curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://beta.onyphe.io/api/v2/search/$SEARCH" | jq .max_page`
 if [ -z "$MAX_PAGE" ]; then
    echo "*** No result, aborting"
    exit 3
@@ -30,6 +30,6 @@ echo "*** Last page: $MAX_PAGE"
 
 for i in $(seq 1 $MAX_PAGE); do
    echo "*** Fetching page: $i"
-   curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://beta.onyphe.io/testapi/v2/search/$SEARCH?page=$i" | jq '.results[]' -cM >> /tmp/$CATEGORY.json
+   curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://beta.onyphe.io/api/v2/search/$SEARCH?page=$i" | jq '.results[]' -cM >> /tmp/$CATEGORY.json
    sleep 1
 done
