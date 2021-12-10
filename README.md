@@ -7,7 +7,7 @@ Step-by-step guide to install the training platform based on the Elastic Stack.
 ### Install dependencies - Debian based systems
 
 ```
-sudo apt-get install openjdk-11-jre curl jq
+sudo apt-get install openjdk-11-jre curl jq liburi-perl
 ```
 
 ### Download Elastic Stack components
