@@ -16,6 +16,8 @@ else
    exit 2
 fi
 
+SEARCH=$(perl -MURI::Escape -e "print uri_escape(\"$SEARCH\")")
+
 MAX_PAGE=`curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://beta.onyphe.io/api/v2/search/$SEARCH" | jq .max_page`
 if [ -z "$MAX_PAGE" ]; then
    echo "*** No result, aborting"
