@@ -66,6 +66,7 @@ mv logstash.conf logstash-7.10.2/config/
 ```
 cd
 wget https://raw.githubusercontent.com/onyphe/training/master/filebeat.yml
+chmod 644 filebeat.yml
 mv filebeat.yml filebeat-7.10.2-linux-x86_64/
 ./filebeat-7.10.2-linux-x86_64/filebeat --path.config ./filebeat-7.10.2-linux-x86_64 &
 tail -f filebeat-7.10.2-linux-x86_64/logs/filebeat
