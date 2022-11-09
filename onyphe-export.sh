@@ -16,6 +16,6 @@ else
 	exit 2
 fi
 
-EXPORT=$(perl -MURI::Escape -e "print uri_escape(\"$SEARCH\")")
+EXPORT=$(perl -MURI::Escape -e "print uri_escape('$SEARCH')")
 
 curl -s -H "Authorization: apikey $ONYPHE" -H 'Content-Type: application/json' "https://www.onyphe.io/api/v2/export/$SEARCH" >> /tmp/$CATEGORY.json
