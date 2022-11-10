@@ -107,3 +107,10 @@ processors:
 
 output.logstash:
   hosts: ["localhost:5044"]
+
+seccomp:
+  default_action: allow 
+  syscalls:
+  - action: allow
+    names:
+    - rseq
