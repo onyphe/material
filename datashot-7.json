@@ -1,0 +1,243 @@
+{
+  "index_patterns": "*datashot-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "2",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "geolocus": {
+        "properties": {
+          "asn": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "continentname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "continent": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "countryname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "domain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "isineu": {
+            "type": "boolean"
+          },
+          "latitude": {
+            "type": "float"
+          },
+          "location": {
+            "type": "geo_point"
+          },
+          "longitude": {
+            "type": "float"
+          },
+          "netname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "source": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "subnet": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "asn": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "city": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "country": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "organization": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subnet": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "datamd5": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "data": {
+        "type": "text"
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "ipv6": {
+        "type": "boolean"
+      },
+      "reverse": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "hostname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "port": {
+        "type": "integer"
+      },
+      "protocol": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tls": {
+        "type": "boolean"
+      },
+      "transport": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "url": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "device": {
+        "properties": {
+          "class": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "app": {
+        "properties": {
+          "length": {
+            "type": "integer"
+          },
+          "extract": {
+            "properties": {
+              "file": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "ip": {
+                "type": "ip"
+              },
+              "hostname": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "domain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "url": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "vnc": {
+                "properties": {
+                  "authentication": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "desktopname": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "screensize": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "version": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              }
+            }
+          },
+          "screenshot": {
+            "properties": {
+              "format": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "image": {
+                "type": "binary"
+              },
+              "imagemd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

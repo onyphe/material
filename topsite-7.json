@@ -1,0 +1,98 @@
+{
+  "index_patterns": "*topsite-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "1",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "ipv6": {
+        "type": "boolean"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "host": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "hostname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "rank": {
+        "type": "integer"
+      },
+      "city": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "country": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "asn": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "latitude": {
+        "type": "float"
+      },
+      "longitude": {
+        "type": "float"
+      },
+      "subnet": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "organization": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      }
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "index_patterns": "*whois-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "1",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "type": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "abuse": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "asn": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "country": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "timezone": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "continent": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "continentname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "countryname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "isineu": {
+        "type": "boolean"
+      },
+      "data": {
+        "type": "text"
+      },
+      "datamd5": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "gdpr": {
+        "type": "text"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "host": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "ipv6": {
+        "type": "boolean"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "latitude": {
+        "type": "float"
+      },
+      "longitude": {
+        "type": "float"
+      },
+      "netname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "organization": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "reverse": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "route": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "bgproute": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subnet": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "ip_range": {
+        "properties": {
+          "from": {
+            "type": "ip"
+          },
+          "from_int": {
+            "type": "long"
+          },
+          "from_int2": {
+            "type": "long"
+          },
+          "to": {
+            "type": "ip"
+          },
+          "to_int": {
+            "type": "long"
+          },
+          "to_int2": {
+            "type": "long"
+          }
+        }
+      }
+    }
+  }
+}

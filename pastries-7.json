@@ -1,0 +1,136 @@
+{
+  "index_patterns": "*pastries-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "1",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "data": {
+        "type": "alias",
+        "path": "content"
+      },
+      "content": {
+        "type": "text"
+      },
+      "cve": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "hostname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "host": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "key": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "url": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "file": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "scheme": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "size": {
+        "type": "integer"
+      },
+      "syntax": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "title": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "user": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "company": {
+        "properties": {
+          "name": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "globalrank": {
+            "type": "integer"
+          },
+          "fortunerank": {
+            "type": "integer"
+          },
+          "sector": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "industry": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      }
+    }
+  }
+}

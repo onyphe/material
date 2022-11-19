@@ -1,0 +1,229 @@
+{
+  "index_patterns": "*ctl-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "4",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "ca": {
+        "type": "boolean"
+      },
+      "keyusage": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "extkeyusage": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "basicconstraints": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "fingerprint": {
+        "properties": {
+          "md5": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "sha1": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "sha256": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "host": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "hostname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "issuer": {
+        "properties": {
+          "commonname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "city": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "email": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "publickey": {
+        "properties": {
+          "algorithm": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "length": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "exponent": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "signature": {
+        "properties": {
+          "algorithm": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "serial": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subject": {
+        "properties": {
+          "altname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "commonname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organizationalunit": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "city": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "email": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "country": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "organization": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "validity": {
+        "properties": {
+          "notafter": {
+            "type": "date"
+          },
+          "notbefore": {
+            "type": "date"
+          }
+        }
+      },
+      "version": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "wildcard": {
+        "type": "boolean"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "company": {
+        "properties": {
+          "name": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "globalrank": {
+            "type": "integer"
+          },
+          "fortunerank": {
+            "type": "integer"
+          },
+          "sector": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "industry": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "index_patterns": "*onionshot-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "1",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "datamd5": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "data": {
+        "type": "text"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "forward": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "hostname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "onion": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "port": {
+        "type": "integer"
+      },
+      "protocol": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tls": {
+        "type": "boolean"
+      },
+      "transport": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "url": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "device": {
+        "properties": {
+          "class": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "app": {
+        "properties": {
+          "length": {
+            "type": "integer"
+          },
+          "extract": {
+            "properties": {
+              "file": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "ip": {
+                "type": "ip"
+              },
+              "hostname": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "domain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "url": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "http": {
+            "properties": {
+              "headermd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "bodymd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "screenshot": {
+            "properties": {
+              "format": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "image": {
+                "type": "binary"
+              },
+              "imagemd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
