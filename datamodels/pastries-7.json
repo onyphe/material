@@ -28,10 +28,6 @@
         "doc_values": true
       },
       "data": {
-        "type": "alias",
-        "path": "content"
-      },
-      "content": {
         "type": "text"
       },
       "cve": {
