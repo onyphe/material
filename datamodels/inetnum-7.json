@@ -51,18 +51,8 @@
         "type": "keyword",
         "normalizer": "my_normalizer"
       },
-      "information": {
-        "type": "text",
-        "fields": {
-          "keyword": {
-            "type": "keyword",
-            "normalizer": "my_normalizer"
-          }
-        }
-      },
       "data": {
-        "type": "alias",
-        "path": "information"
+        "type": "text"
       },
       "ip": {
         "type": "ip"
