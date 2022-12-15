@@ -1,0 +1,39 @@
+{
+  "index_patterns": [
+    "*ip-*"
+  ],
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "8",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "ipv6": {
+        "type": "boolean"
+      }
+    }
+  }
+}
