@@ -1,0 +1,41 @@
+{
+  "index_patterns": [
+    "*domain-*"
+  ],
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "16",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      }
+    }
+  }
+}
