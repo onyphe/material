@@ -71,3 +71,25 @@ mv filebeat.yml filebeat-7.10.2-linux-x86_64/
 ./filebeat-7.10.2-linux-x86_64/filebeat --path.config ./filebeat-7.10.2-linux-x86_64 &
 tail -f filebeat-7.10.2-linux-x86_64/logs/filebeat
 ```
+
+### Downloading & installing datamodels
+
+```
+for i in ctl datascan resolver sniffer synscan threatlist vulnscan whois onionscan onionshot datashot inetnum topsite pastries ip domain hostname geoloc; do
+wget https://raw.githubusercontent.com/onyphe/training/master/datamodels/$i-7.json
+done
+```
+
+```
+for i in ctl datascan resolver sniffer synscan threatlist vulnscan whois onionscan onionshot datashot inetnum topsite pastries ip domain hostname geoloc; do
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/$i-7 -d@/tmp/$i-7.json
+done
+```
+
+Delete all datamodels:
+
+```
+for i in ctl datascan resolver sniffer synscan threatlist vulnscan whois onionscan onionshot datashot inetnum topsite pastries ip domain hostname geoloc; do
+curl -XDELETE http://localhost:9200/_template/$i-7
+done
+```
