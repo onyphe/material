@@ -93,7 +93,31 @@ filebeat.inputs:
     - /tmp/whois.json
   fields:
     onyphe_index: "whois"
-
+- type: log
+  enabled: true
+  paths:
+    - /tmp/ip.json
+  fields:
+    onyphe_index: "ip"
+- type: log
+  enabled: true
+  paths:
+    - /tmp/domain.json
+  fields:
+    onyphe_index: "domain"
+ - type: log
+  enabled: true
+  paths:
+    - /tmp/hostname.json
+  fields:
+    onyphe_index: "hostname"
+ - type: log
+  enabled: true
+  paths:
+    - /tmp/riskscan.json
+  fields:
+    onyphe_index: "riskscan"
+    
 processors:
   - include_fields:
       fields: ["message","fields"]
