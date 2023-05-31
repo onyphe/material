@@ -1,0 +1,773 @@
+{
+  "index_patterns": "*riskscan-*",
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "12",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "node": {
+        "properties": {
+          "id": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "groupid": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "physicalcountry": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "geolocus": {
+        "properties": {
+          "asn": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "continentname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "continent": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "countryname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "domain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "isineu": {
+            "type": "boolean"
+          },
+          "latitude": {
+            "type": "float"
+          },
+          "location": {
+            "type": "geo_point"
+          },
+          "longitude": {
+            "type": "float"
+          },
+          "netname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "subnet": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "asn": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "city": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "country": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "location": {
+        "type": "geo_point"
+      },
+      "organization": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subnet": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "basicconstraints": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "ca": {
+        "type": "boolean"
+      },
+      "cpecount": {
+        "type": "integer"
+      },
+      "cpe": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "cvecount": {
+        "type": "integer"
+      },
+      "cve": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "datamd5": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "datammh3": {
+        "type": "integer"
+      },
+      "data": {
+        "type": "text"
+      },
+      "domain": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "extkeyusage": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "forward": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "hostname": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "host": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "alternativeip": {
+        "type": "ip"
+      },
+      "ipv6": {
+        "type": "boolean"
+      },
+      "keyusage": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "osbits": {
+        "type": "integer"
+      },
+      "osdistribution": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "osdistributionversion": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "os": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "osvendor": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "osversionpatch": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "osversion": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "port": {
+        "type": "integer"
+      },
+      "product": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "productvendor": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "productversionpatch": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "productversion": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "protocol": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "protocolversion": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "reason": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "reverse": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "status": {
+        "type": "integer"
+      },
+      "subdomains": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "summarymd5": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "summarymmh3": {
+        "type": "integer"
+      },
+      "summary": {
+        "type": "text"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tld": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "tls": {
+        "type": "boolean"
+      },
+      "transport": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "url": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "fingerprint": {
+        "properties": {
+          "md5": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "sha1": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "sha256": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "issuer": {
+        "properties": {
+          "commonname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organizationalunit": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "serial": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "city": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "email": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "publickey": {
+        "properties": {
+          "algorithm": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "length": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "exponent": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "signature": {
+        "properties": {
+          "algorithm": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "serial": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "subject": {
+        "properties": {
+          "altname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "commonname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organizationalunit": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "serial": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "city": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "email": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "validity": {
+        "properties": {
+          "notafter": {
+            "type": "date"
+          },
+          "notbefore": {
+            "type": "date"
+          }
+        }
+      },
+      "version": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "wildcard": {
+        "type": "boolean"
+      },
+      "device": {
+        "properties": {
+          "class": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "product": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "productversion": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "productversionpatch": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "productvendor": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "app": {
+        "properties": {
+          "length": {
+            "type": "integer"
+          },
+          "extract": {
+            "properties": {
+              "file": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "ip": {
+                "type": "ip"
+              },
+              "hostname": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "domain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "url": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "database": {
+            "properties": {
+              "name": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "count": {
+                "type": "integer"
+              }
+            }
+          },
+          "ftp": {
+            "properties": {
+              "anonymous": {
+                "type": "boolean"
+              }
+            }
+          },
+          "telnet": {
+            "properties": {
+              "fingerprint": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "smb": {
+            "properties": {
+              "workgroup": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "nullsession": {
+                "type": "boolean"
+              },
+              "servername": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "share": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "http": {
+            "properties": {
+              "realm": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "headermd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "headermmh3": {
+                "type": "integer"
+              },
+              "bodymd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "bodymmh3": {
+                "type": "integer"
+              },
+              "tracker": {
+                "properties": {
+                  "ga": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "gaw": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "gtm": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "gpub": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "fbq": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "snaptr": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "title": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "keywords": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "description": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "copyright": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "component": {
+                "type": "nested",
+                "properties": {
+                  "product": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "productversion": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "productversionpatch": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "productvendor": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "header": {
+                "type": "nested",
+                "properties": {
+                  "name": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "value": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              }
+            }
+          },
+          "rtsp": {
+            "properties": {
+              "realm": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "browse": {
+            "properties": {
+              "type": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "name": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "file": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "elasticsearch": {
+            "properties": {
+              "clustername": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "luceneversion": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "mongodb": {
+            "properties": {
+              "name": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "dns": {
+            "properties": {
+              "versionbind": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "modbus": {
+            "properties": {
+              "function": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "code": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "objectcount": {
+                "type": "integer"
+              },
+              "product": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "productversion": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "productversionpatch": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "productvendor": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "information": {
+                "type": "text"
+              }
+            }
+          },
+          "ntp": {
+            "properties": {
+              "leap": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "version": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "mode": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "stratum": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "company": {
+        "properties": {
+          "name": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "globalrank": {
+            "type": "integer"
+          },
+          "fortunerank": {
+            "type": "integer"
+          },
+          "sector": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "industry": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      }
+    }
+  }
+}
