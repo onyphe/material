@@ -82,7 +82,7 @@ done
 
 ```
 for i in ctl datascan resolver sniffer synscan threatlist vulnscan whois onionscan onionshot datashot inetnum topsite pastries ip domain hostname geoloc riskscan; do
-curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/$i-7 -d@/tmp/$i-7.json
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/$i-7 -d@./$i-7.json
 done
 ```
 
