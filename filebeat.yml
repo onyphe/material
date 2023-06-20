@@ -105,13 +105,13 @@ filebeat.inputs:
     - /tmp/domain.json
   fields:
     onyphe_index: "domain"
- - type: log
+- type: log
   enabled: true
   paths:
     - /tmp/hostname.json
   fields:
     onyphe_index: "hostname"
- - type: log
+- type: log
   enabled: true
   paths:
     - /tmp/riskscan.json
