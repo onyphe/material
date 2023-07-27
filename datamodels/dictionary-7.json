@@ -1,0 +1,46 @@
+{
+  "index_patterns": "*dictionary-*",
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "1",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date",
+        "doc_values": true
+      },
+      "@version": {
+        "type": "keyword",
+        "doc_values": true
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "field": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "value": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "definition": {
+        "type": "text"
+      }
+    }
+  }
+}
