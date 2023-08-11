@@ -56,7 +56,7 @@ tar zxvf filebeat-7.10.2-linux-x86_64.tar.gz
 
 ```
 cd
-wget https://raw.githubusercontent.com/onyphe/material/training/master/logstash.conf
+wget https://raw.githubusercontent.com/onyphe/material/master/training/logstash.conf
 mv logstash.conf logstash-7.10.2/config/
 ./logstash-7.10.2/bin/logstash -f ./logstash-7.10.2/config/logstash.conf
 ```
@@ -65,7 +65,7 @@ mv logstash.conf logstash-7.10.2/config/
 
 ```
 cd
-wget https://raw.githubusercontent.com/onyphe/material/training/master/filebeat.yml
+wget https://raw.githubusercontent.com/onyphe/material/master/training/filebeat.yml
 chmod 644 filebeat.yml
 mv filebeat.yml filebeat-7.10.2-linux-x86_64/
 ./filebeat-7.10.2-linux-x86_64/filebeat --path.config ./filebeat-7.10.2-linux-x86_64 &
@@ -76,7 +76,7 @@ tail -f filebeat-7.10.2-linux-x86_64/logs/filebeat
 
 ```
 for i in ctl datascan resolver sniffer synscan threatlist vulnscan whois onionscan onionshot datashot inetnum topsite pastries ip domain hostname geoloc riskscan; do
-wget https://raw.githubusercontent.com/onyphe/material/training/master/datamodels/$i-7.json
+wget https://raw.githubusercontent.com/onyphe/material/master/datamodels/$i-7.json
 done
 ```
 
