@@ -469,6 +469,35 @@
               }
             }
           },
+          "favicon": {
+            "properties": {
+              "url": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "length": {
+                "type": "integer"
+              },
+              "filename": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "format": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "image": {
+                "type": "binary"
+              },
+              "imagemd5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "imagemmh3": {
+                "type": "integer"
+              }
+            }
+          },
           "database": {
             "properties": {
               "name": {
