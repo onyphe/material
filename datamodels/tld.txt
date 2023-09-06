@@ -292,6 +292,9 @@ com.in
 com.io
 com.iq
 com.is
+com.jm
+gov.jm
+edu.jm
 com.jo
 com.kg
 com.kh
