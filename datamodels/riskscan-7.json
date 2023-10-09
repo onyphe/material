@@ -559,7 +559,11 @@
                   "snaptr": {
                     "type": "keyword",
                     "normalizer": "my_normalizer"
-                  }
+                  },
+                  "newrelic": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }   
                 }
               },
               "title": {
