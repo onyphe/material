@@ -221,6 +221,7 @@ co.il
 co.im
 co.in
 co.ir
+co.it
 co.je
 co.jp
 co.ke
@@ -293,8 +294,6 @@ com.io
 com.iq
 com.is
 com.jm
-gov.jm
-edu.jm
 com.jo
 com.kg
 com.kh
@@ -515,6 +514,7 @@ edu.in
 edu.iq
 edu.is
 edu.it
+edu.jm
 edu.jo
 edu.kg
 edu.ki
@@ -757,6 +757,7 @@ gov.iq
 gov.ir
 gov.is
 gov.it
+gov.jm
 gov.jo
 gov.kg
 gov.ki
