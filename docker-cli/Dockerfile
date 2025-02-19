@@ -1,9 +1,9 @@
 FROM alpine:latest
-ARG CLI_VERSION=4.14
+ARG CLI_VERSION=4.17
 WORKDIR /onyphecli
 RUN apk update && apk upgrade
 RUN apk add --no-cache perl perl-dev make libssl3 libressl-dev openssl build-base zlib zlib-dev
-RUN apk add --no-cache perl-app-cpanminus
+RUN apk add --no-cache perl-app-cpanminus perl-net-ssleay
 RUN cpanm -n Config::INI::Tiny Text::ParseWords Net::IPv4Addr Regexp::IPv4 
 RUN cpanm -n Mojolicious Tie::IxHash LWP::Protocol::https JSON::XS File::Slurp Text::CSV_XS Regexp::IPv6
 RUN echo 'api_endpoint = https://www.onyphe.io/api/v2' > ~/.onyphe.ini 
