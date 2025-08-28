@@ -1,0 +1,1058 @@
+{
+  "index_patterns": [
+    "ctiscan-*",
+    "custom-ctiscan-*",
+    "optim-ctiscan-*",
+    "optim-sample-ctiscan-*"
+  ],
+  "order": 1,
+  "settings": {
+    "index.refresh_interval": "60s",
+    "index.number_of_replicas": "1",
+    "index.number_of_shards": "12",
+    "analysis": {
+      "normalizer": {
+        "my_normalizer": {
+          "type": "custom",
+          "char_filter": [],
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "@category": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "@timestamp": {
+        "type": "date"
+      },
+      "@version": {
+        "type": "keyword"
+      },
+      "tag": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "source": {
+        "type": "keyword",
+        "normalizer": "my_normalizer"
+      },
+      "scanner": {
+        "properties": {
+          "name": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "lcountry": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "scope": {
+        "properties": {
+          "type": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "text": {
+            "type": "text"
+          },
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "ip": {
+        "properties": {
+          "version": {
+            "type": "byte"
+          },
+          "ttl": {
+            "type": "short"
+          },
+          "src": {
+            "type": "ip"
+          },
+          "dest": {
+            "type": "ip"
+          },
+          "netname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "asn": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "organization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "subnet": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "country": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "latitude": {
+            "type": "float"
+          },
+          "longitude": {
+            "type": "float"
+          },
+          "location": {
+            "type": "geo_point"
+          },
+          "lasn": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "lorganization": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "lsubnet": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "lcountry": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "llatitude": {
+            "type": "float"
+          },
+          "llongitude": {
+            "type": "float"
+          },
+          "llocation": {
+            "type": "geo_point"
+          }
+        }
+      },
+      "tcp": {
+        "properties": {
+          "text": {
+            "type": "text"
+          },
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "src": {
+            "type": "integer"
+          },
+          "dest": {
+            "type": "integer"
+          },
+          "cpe": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "vendor": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "product": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "options": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "window": {
+            "type": "integer"
+          },
+          "rtt": {
+            "type": "float"
+          }
+        }
+      },
+      "app": {
+        "properties": {
+          "text": {
+            "type": "text"
+          },
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "device": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "protocol": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "transport": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "tls": {
+            "type": "boolean"
+          },
+          "redirect": {
+            "type": "boolean"
+          },
+          "data": {
+            "properties": {
+              "text": {
+                "type": "text"
+              },
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "length": {
+                "type": "integer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "mmh3": {
+                "type": "integer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "extract": {
+        "properties": {
+          "url": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "domain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "hostname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "file": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "ip": {
+            "type": "ip"
+          }
+        }
+      },
+      "services": {
+        "properties": {
+          "text": {
+            "type": "text"
+          },
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "port": {
+            "type": "integer"
+          },
+          "protocol": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "domain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "service": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "dns": {
+        "properties": {
+          "hostname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "domain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "idomain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "tld": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "host": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "reverse": {
+            "properties": {
+              "hostname": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "domain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "idomain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "tld": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "host": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "forward": {
+            "properties": {
+              "hostname": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "domain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "idomain": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "tld": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "host": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "cert": {
+        "properties": {
+          "hostname": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "domain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "idomain": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "host": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "tld": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "serial": {
+            "properties": {
+              "hex": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "num": {
+                "type": "long"
+              },
+              "dec": {
+                "type": "long"
+              },
+              "long": {
+                "type": "long"
+              }
+            }
+          },
+          "validity": {
+            "properties": {
+              "valid": {
+                "type": "boolean"
+              },
+              "expired": {
+                "type": "boolean"
+              },
+              "notafter": {
+                "type": "date"
+              },
+              "notbefore": {
+                "type": "date"
+              }
+            }
+          },
+          "fingerprint": {
+            "properties": {
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha1": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "issuer": {
+            "properties": {
+              "dn": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "cn": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "an": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "o": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "ou": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "c": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "l": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "st": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "e": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "subject": {
+            "properties": {
+              "dn": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "cn": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "an": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "o": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "ou": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "c": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "l": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "st": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "e": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "tlssession": {
+        "properties": {
+          "protocol": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "ciphersuite": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "entity": {
+        "properties": {
+          "text": {
+            "type": "text"
+          },
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "md5": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "ja4t": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "ja3s": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "ja4s": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "ssh": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha1": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "hassh": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "hhhash": {
+        "properties": {
+          "version": {
+            "type": "byte"
+          },
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "ssdeep": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "domhash": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "jarm": {
+        "properties": {
+          "fingerprint": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "cipherversion": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "tlsextsha256": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "ja3s": {
+            "properties": {
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "component": {
+        "properties": {
+          "text": {
+            "type": "text"
+          },
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "cpe": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "vendor": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "product": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "version": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "patch": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "distribution": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "favicon": {
+        "properties": {
+          "url": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "data": {
+            "properties": {
+              "type": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "base64": {
+                "type": "binary"
+              },
+              "length": {
+                "type": "integer"
+              },
+              "md5": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "mmh3": {
+                "type": "integer"
+              },
+              "sha256": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "uri": {
+        "properties": {
+          "raw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "scheme": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "vhost": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "dest": {
+            "type": "integer"
+          },
+          "url": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "userinfo": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "http": {
+        "properties": {
+          "version": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "vhost": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "code": {
+            "type": "short"
+          },
+          "url": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "defang": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "undefang": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "body": {
+            "properties": {
+              "data": {
+                "properties": {
+                  "text": {
+                    "type": "text"
+                  },
+                  "raw": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "md5": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "mmh3": {
+                    "type": "integer"
+                  },
+                  "sha256": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              }
+            }
+          },
+          "header": {
+            "properties": {
+              "data": {
+                "properties": {
+                  "text": {
+                    "type": "text"
+                  },
+                  "raw": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "md5": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  },
+                  "mmh3": {
+                    "type": "integer"
+                  },
+                  "sha256": {
+                    "type": "keyword",
+                    "normalizer": "my_normalizer"
+                  }
+                }
+              },
+              "etag": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "lastmodified": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "server": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "location": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "wwwauthenticate": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "realm": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "cookie": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "contentlength": {
+                "type": "unsigned_long"
+              }
+            }
+          }
+        }
+      },
+      "redirect": {
+        "properties": {
+          "type": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "src": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "dest": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "html": {
+        "properties": {
+          "title": {
+            "properties": {
+              "text": {
+                "type": "text"
+              },
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "keywords": {
+            "properties": {
+              "text": {
+                "type": "text"
+              },
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "description": {
+            "properties": {
+              "text": {
+                "type": "text"
+              },
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          },
+          "copyright": {
+            "properties": {
+              "text": {
+                "type": "text"
+              },
+              "raw": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },
+      "tracker": {
+        "properties": {
+          "ga": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "gaw": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "gtm": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "gpub": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "fbq": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "snaptr": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "newrelic": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          }
+        }
+      },
+      "ftp": {
+        "properties": {
+          "anonymous": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
