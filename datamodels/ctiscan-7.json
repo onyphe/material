@@ -1,15 +1,12 @@
 {
   "index_patterns": [
-    "ctiscan-*",
-    "custom-ctiscan-*",
-    "optim-ctiscan-*",
-    "optim-sample-ctiscan-*"
+    "ctiscan-*"
   ],
   "order": 1,
   "settings": {
     "index.refresh_interval": "60s",
     "index.number_of_replicas": "1",
-    "index.number_of_shards": "12",
+    "index.number_of_shards": "24",
     "analysis": {
       "normalizer": {
         "my_normalizer": {
@@ -42,6 +39,50 @@
         "type": "keyword",
         "normalizer": "my_normalizer"
       },
+      "compat": {
+        "properties": {
+          "productvendor": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "product": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "productversion": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "productversionpatch": {
+            "type": "keyword",
+            "normalizer": "my_normalizer"
+          },
+          "device": {
+            "properties": {
+              "class": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "productvendor": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "product": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "productversion": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              },
+              "productversionpatch": {
+                "type": "keyword",
+                "normalizer": "my_normalizer"
+              }
+            }
+          }
+        }
+      },      
       "scanner": {
         "properties": {
           "name": {
@@ -823,7 +864,7 @@
             "type": "keyword",
             "normalizer": "my_normalizer"
           },
-          "vhost": {
+          "hostname": {
             "type": "keyword",
             "normalizer": "my_normalizer"
           },
@@ -846,7 +887,7 @@
             "type": "keyword",
             "normalizer": "my_normalizer"
           },
-          "vhost": {
+          "hostname": {
             "type": "keyword",
             "normalizer": "my_normalizer"
           },
