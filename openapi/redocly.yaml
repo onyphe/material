@@ -1,0 +1,5 @@
+extends:
+  - recommended
+rules:
+  # Documented paths carry a trailing slash (/api/v2/search/).
+  no-path-trailing-slash: off

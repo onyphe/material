@@ -1,0 +1,864 @@
+openapi: 3.0.3
+info:
+  title: ONYPHE API - Search, Export, Discovery and ASD Pivot Query
+  version: "2026-10-21"
+  description: |
+    Developer reference for four ONYPHE endpoints: **Search**, **Export**,
+    **Discovery** (bulk) and **ASD Pivot Query**. Queries are written in OQL
+    (ONYPHE Query Language), always `FILTER:VALUE`.
+
+    ## Two use cases, two data models
+
+    The `category` you query decides which **field names** you must use.
+    A field from the wrong model **returns 0 results (or HTTP 400) and never
+    an explicit "unknown field" error**, which is indistinguishable from a
+    genuine absence. Pick the model first.
+
+    ### A. IP enrichment and CTI: `ctiscan` and `ctiurl` (ctiscan data model)
+
+    - `ctiscan` is service-level: one document per scanned service, merging
+      every scanning step (IP, TCP, application, TLS/certificate, component,
+      DNS, HTTP, favicon, hashes...) so a single document carries every pivot.
+    - `ctiurl` is URL-level and uses the same model; `http.url` is what
+      distinguishes it.
+    - Fields are organised in *layers* (`ip.*`, `tcp.*`, `app.*`, `http.*`,
+      `cert.*`, `component.*`, `dns.*`, `html.*`, ...).
+    - The raw response is `app.data.text` (up to ~1 MB).
+    - Use it to enrich an IP (`ip.dest:1.2.3.4`), hunt infrastructure, and pivot
+      on certificates, hashes and fingerprints.
+    - The Summary API never returns ctiscan/ctiurl; query them here.
+
+    ### B. Attack surface management (ASM): `riskscan` and `vulnscan` (datascan data model)
+
+    - `datascan`, `vulnscan` and `riskscan` share one flat, datascan-style model
+      (`ip`, `port`, `protocol`, `hostname`, `domain`, `tag`, `cve`, `cpe`,
+      `seen_date`, `data`...).
+    - `riskscan`: services matching a CTI-informed risk baseline, carrying
+      `risk::*` tags (exposed database, critical CVE, sensitive protocol,
+      compromised device...) and the positive CVE detections. About **7 months**
+      of history. Positive-only: it has no "not vulnerable" verdicts. Its raw
+      `data` is truncated after a period of time.
+    - `vulnscan`: CVE detection by *check-based* (`vulnerable`, `notvulnerable`,
+      `maybevulnerable`, `unknownvulnerable`) and *version-based*
+      (`vulnerableversion`, `notvulnerableversion`, `maybevulnerableversion`,
+      `partialversion`, `unknownversion`, `version`) detection. Holds negative
+      verdicts, the full stored response and deeper history. Always add
+      `-exists:cve` when you want only records that carry a CVE.
+    - Typical entry point is the **Discovery** endpoint, fed with an asset
+      inventory (one OQL line per domain/IP).
+
+    ### Field dialect cheat-sheet
+
+    | Meaning | datascan / vulnscan / riskscan | ctiscan / ctiurl |
+    |---|---|---|
+    | IP | `ip` | `ip.dest` |
+    | Port | `port` | `tcp.dest` (this service), `services.port` (any open port on the host) |
+    | Protocol | `protocol` | `app.protocol` |
+    | Raw response | `data` (capped at 16384 bytes) | `app.data.text` (up to ~1 MB) |
+    | CPE | `cpe` | `component.cpe` |
+    | Product / vendor / version | `product`, `productvendor`, `productversion` | `component.product`, `component.vendor`, `component.version` |
+    | HTTP status | `status` | `http.code` |
+    | URL | `url` | `http.url` |
+    | Page title | `app.http.title` | `html.title.text` (full-text), `html.title.raw` (exact/regexp) |
+    | Device class | `device.class` | `app.device` |
+    | Reverse / forward DNS | `reverse` / `forward` | `dns.reverse.hostname` / `dns.forward.hostname` |
+    | ASN / organisation / country | `asn`, `organization`, `country` | `ip.asn`, `ip.organization`, `ip.country` |
+    | Cert subject CN / issuer org | `subject.commonname`, `issuer.organization` | `cert.subject.cn`, `cert.issuer.o` |
+    | Cert SHA-256 | `fingerprint.sha256` | `cert.fingerprint.sha256` |
+
+    Unchanged in both models: `tag`, `source`, `@category`, `@timestamp`,
+    `seen_date`.
+
+    ## OQL notes
+
+    Plain filters are `FILTER:VALUE`. OR is `?`, NOT is `!`; there is no
+    `OR`/`NOT` keyword: `( ?domain:a.com ?domain:b.com )`, `!domain:google.com`.
+
+    **Functions** are server-side, prefixed with `-`, written on the query
+    side (before any `|` post-processing). Every function has a short alias.
+    They are licence-gated: one your subscription does not grant is refused
+    (`400 unknown function`), not ignored.
+
+    | Function | Alias | Meaning |
+    |---|---|---|
+    | `-wildcard:<field>,<wildcard_filter>` | `-wd:` | Wildcard match, `?` = one char, `*` = zero or more. e.g. `-wildcard:subject.organization,"*legrand*"` |
+    | `-orwildcard:<field>,<wildcard_filter>` | `-owd:` | Repeatable, OR-combined |
+    | `-notwildcard:<field>,<wildcard_filter>` | `-nwd:` | Exclusion |
+    | `-regexp:<field>,"<regexp>"` | `-re:` | Regular expression, anchored and case-insensitive: wrap in `.*` for a substring |
+    | `-orregexp:<field>,"<regexp>"` | `-ore:` | Repeatable, OR-combined |
+    | `-notregexp:<field>,"<regexp>"` | `-nre:` | Exclusion |
+    | `-exists:<field>` | `-ex:` | Field is populated, e.g. `-exists:cve` |
+    | `-notexists:<field>` | `-nex:` | Field is absent |
+    | `-orexists:<field>` | `-oex:` | Repeatable, OR-combined |
+    | `-since:<period>` | `-si:` | Rolling window: `7d`, `1w`, `3M`, `7M` |
+    | `-hourago:N`, `-dayago:N`, `-weekago:N`, `-monthago:N` | `-ha:`, `-da:`, `-wa:`, `-ma:` | A whole bucket N units back (`-dayago:1` is all of yesterday, not the last 24 hours); `0` is the current one |
+    | `-fields:<f1>,<f2>,...` | `-fi:` | Server-side projection. Use it everywhere; mandatory in practice for Export |
+    | `-sort:0` | `-so:` | Oldest first (default is newest first) |
+
+    - Wildcard and regexp match the **whole value** of a keyword field
+      (case-insensitive). On a `text` field they match **individual tokens**:
+      `-wildcard:html.title.text,"*ound"` matches "404 Not Found", but a
+      pattern spanning a space (`"404 not*"`) never matches and does not
+      error. Use the keyword variant (e.g. `html.title.raw`) for whole values.
+    - Wildcard and regexp are I/O-intensive and may time out: a timeout is
+      not a zero.
+    - Examples:
+      `category:datascan -wildcard:domain,g??gle.com !domain:google.com`,
+      `category:ctl -regexp:domain,"g[^\\.o]ogle[a-z0-9-]*\\.[a-z\\.]{1,}" -since:1w`,
+      `category:datascan -wildcard:subject.organization,"*legrand*" tag:cert::valid`.
+    - If no historical function is given, Search covers the last 30 days.
+
+    ## Interpreting results
+
+    - **An empty result is not an error.** "Not scanned", "outside the
+      window", "wrong field model" and "genuinely absent" all return 0
+      results with `error: 0`.
+    - A document is one scan, not one asset: the same `ip:port` can appear
+      several times in a window.
+    - ONYPHE data is passive observation: it tells you what was seen and
+      when, not the current state of an asset.
+
+    ## Authentication
+
+    API key. Two schemes:
+
+    - `bearerAuth` (`Authorization: Bearer <key>`, scheme name
+      case-insensitive) for the v2 API (Search, Export, Discovery).
+    - `apiKeyAuth` (`X-Api-Key: <key>`) for the ASD v1 API, served from its
+      own base URL (`https://www.onyphe.io/api/v1`) with the same key, Griffin
+      View only.
+
+    Authentication failures are returned as HTTP 400 with an error code
+    (v2: `error` 2 for a missing key, 14 for an unknown key or exhausted
+    credit; ASD: `error` 1002 for a missing key, 1003 "user not found" for
+    an unknown one).
+
+    ## Errors
+
+    Errors are HTTP 400 with a JSON body; read `error` (0 on success) and
+    `text`. The v2 body is `{count, error, myip, status: "nok", text, took,
+    total}`; the ASD body is `{error, text}`. Codes observed on v2:
+
+    | `error` | Meaning |
+    |---|---|
+    | 2 | No API key given |
+    | 6 | Invalid parameter given (e.g. `size` outside 1..10000) |
+    | 12 | OQL rejected: syntax error, unknown function, or a field/category your licence does not include (`access denied: index not allowed: <category>`, `access denied: filter not allowed: <field>`) |
+    | 13 | API access denied: the endpoint (Export, Discovery, or a Discovery category) is not in your licence |
+    | 14 | No more credit, or unknown API key |
+    | 22 | API endpoint not found |
+
+    ASD codes are listed under the `Error` schema.
+
+    ## Rate limit
+
+    About 1 request per second; excess returns HTTP 429.
+  contact:
+    name: ONYPHE
+    url: https://www.onyphe.io
+  license:
+    name: BSD-3-Clause
+    url: https://opensource.org/license/bsd-3-clause
+externalDocs:
+  description: ONYPHE documentation
+  url: https://search.onyphe.io/docs
+
+servers:
+  - url: https://www.onyphe.io/api/v2
+    description: v2 API (Search, Export, Discovery). ASD overrides this per operation.
+
+tags:
+  - name: Search
+    description: Paged OQL search, up to 10,000 results.
+  - name: Export
+    description: Streamed NDJSON export of a complete population.
+  - name: Discovery
+    description: Bulk OQL over an asset inventory, category in the URL.
+  - name: ASD
+    description: Attack Surface Discovery pivot queries (distinct field values).
+
+security:
+  - bearerAuth: []
+
+paths:
+  /search/:
+    get:
+      tags: [Search]
+      operationId: search
+      summary: Search documents with OQL
+      description: |
+        Runs an OQL query and returns a paged JSON envelope.
+
+        When the query names no category it defaults to `category:datascan`, or
+        to `ctiscan` on a licence without datascan (e.g. ctiscan-only). Name the
+        category explicitly. Every
+        term must be `FILTER:VALUE`: a bare value (`example.com`, `443`) is a
+        syntax error (400, `error` 12).
+
+        **Limit**: at most 10,000 results (100 pages of 100, or one page of
+        `size=10000`). Above that, use **Export**. A page past the ceiling
+        (`page=101`, or `page=2&size=10000`) returns an empty page (HTTP 200,
+        `total: 0`). To count, request `size=1` and read `total`
+        (`size=0` is rejected).
+
+        **Window**: last 30 days unless the query carries a historical function.
+
+        **IP enrichment / CTI**: `category:ctiscan ip.dest:<ip>`,
+        `category:ctiurl http.url:...` (ctiscan field model).
+
+        **ASM**: `category:riskscan` / `category:vulnscan` (datascan field model),
+        for example `category:vulnscan domain:example.com -exists:cve`. For a whole
+        inventory prefer **Discovery**.
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - name: page
+          in: query
+          description: Page to fetch, starting at 1. With the default size of 100, 100 pages reach the 10,000 ceiling.
+          schema: {type: integer, minimum: 1, default: 1}
+        - name: size
+          in: query
+          description: Results per page, 1 to 10,000 (outside that range, 400 with `error` 6). Pages past `page` × `size` = 10,000 come back empty.
+          schema: {type: integer, minimum: 1, maximum: 10000, default: 100}
+        - $ref: '#/components/parameters/TrackQuery'
+      responses:
+        '200':
+          description: Result page. `error` is 0 and `status` is `ok` on success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+              examples:
+                ctiscan-ip-enrichment:
+                  summary: A. IP enrichment on ctiscan
+                  description: '`q=category:ctiscan ip.dest:192.0.2.10 -fields:ip.dest,tcp.dest,app.protocol,component.product,component.version,cert.subject.cn,tag,seen_date`'
+                  value:
+                    count: 2
+                    error: 0
+                    max_page: 1
+                    page: 1
+                    page_size: 100
+                    results:
+                      - "@category": ctiscan
+                        ip: {dest: 192.0.2.10}
+                        tcp: {dest: 443}
+                        app: {protocol: http}
+                        component: {product: [nginx], version: ["1.24.0"]}
+                        cert: {subject: {cn: [example.com]}}
+                        tag: [cert::valid]
+                        seen_date: "2026-10-20"
+                      - "@category": ctiscan
+                        ip: {dest: 192.0.2.10}
+                        tcp: {dest: 22}
+                        app: {protocol: ssh}
+                        seen_date: "2026-10-20"
+                    status: ok
+                    text: Success
+                    took: 0.081
+                    total: 2
+                riskscan-asm:
+                  summary: B. ASM on riskscan
+                  description: '`q=category:riskscan domain:example.com tag:risk::exposeddatabase -fields:ip,port,hostname,tag,seen_date`'
+                  value:
+                    count: 1
+                    error: 0
+                    max_page: 1
+                    page: 1
+                    page_size: 100
+                    results:
+                      - "@category": riskscan
+                        ip: 198.51.100.7
+                        port: 9200
+                        hostname: [db.example.com]
+                        tag: [risk::exposeddatabase, open]
+                        seen_date: "2026-10-19"
+                    status: ok
+                    text: Success
+                    took: 0.12
+                    total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+      x-codeSamples:
+        - lang: Shell
+          label: curl
+          source: |
+            curl -H "Authorization: bearer $ONYPHE_API_KEY" \
+              -G 'https://www.onyphe.io/api/v2/search/' \
+              --data-urlencode 'q=category:ctiscan ip.dest:192.0.2.10 -fields:ip.dest,tcp.dest,app.protocol,tag' \
+              --data-urlencode 'size=100'
+
+  /export/:
+    get:
+      tags: [Export]
+      operationId: export
+      summary: Export a complete population as NDJSON
+      description: |
+        Streams every matching document as one JSON object per line. There is **no
+        envelope, no page limit and no result ceiling**: whatever matches, streams.
+
+        **Always project with `-fields:`** inside `q`, and run the same query
+        through Search first (`size=1`, read `total`). That check does two jobs:
+        it stops a broader-than-intended query from streaming millions of lines,
+        and it validates the OQL: **OQL errors are reported by Search, not by
+        Export**, so validate there first. Always set a client timeout.
+
+        Treat the response body as NDJSON.
+
+        **Licence**: Eagle View exports the last 30 days only; Griffin View exports
+        all historical data; not available on other subscriptions.
+
+        **IP enrichment / CTI**: pull a full ctiscan/ctiurl population (for example a
+        certificate fingerprint or a CPE) and analyse it offline. `ctiscan` and
+        `ctiurl` carry the full response in `app.data.text`, up to ~1 MB, so project
+        it only when you need the markup.
+
+        **Datascan caveat**: `data` is capped at 16384 bytes, so a document at the
+        cap may be missing the end of the response; `ctiscan`/`ctiurl` carry the
+        whole page.
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/TrackQuery'
+      responses:
+        '200':
+          description: NDJSON stream, one document per line, no envelope.
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+                description: NDJSON. Each line is one document (CtiscanDocument or DatascanDocument, depending on the category).
+                x-ndjson-item:
+                  anyOf:
+                    - $ref: '#/components/schemas/CtiscanDocument'
+                    - $ref: '#/components/schemas/DatascanDocument'
+              examples:
+                ctiscan-cpe-population:
+                  summary: A. ctiscan population by CPE
+                  description: '`q=category:ctiscan component.cpe:"cpe:/a:apache:http_server:-" ip.country:LU -dayago:1 -fields:ip.dest,tcp.dest,component.version,tag`'
+                  value: |
+                    {"@category":"ctiscan","ip":{"dest":"192.0.2.10"},"tcp":{"dest":80},"component":{"version":["2.4.58"]},"tag":[]}
+                    {"@category":"ctiscan","ip":{"dest":"192.0.2.11"},"tcp":{"dest":8080},"component":{"version":["2.4.62"]},"tag":[]}
+                vulnscan-kev:
+                  summary: B. vulnscan known-exploited CVEs
+                  description: '`q=category:vulnscan tag:vulnerable tag:cisa::kev -exists:cve -fields:ip,port,cve,tag,seen_date`'
+                  value: |
+                    {"@category":"vulnscan","ip":"198.51.100.7","port":443,"cve":["CVE-2026-00000"],"tag":["vulnerable","cisa::kev"],"seen_date":"2026-10-18"}
+        '400':
+          description: Missing or unknown key (`error` 2 / 14), or Export not in your licence (`error` 13 "API access denied"). OQL errors are reported by Search; validate the query there first.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '429':
+          $ref: '#/components/responses/RateLimited'
+      x-codeSamples:
+        - lang: Shell
+          label: curl
+          source: |
+            curl -H "Authorization: bearer $ONYPHE_API_KEY" --max-time 600 \
+              -G 'https://www.onyphe.io/api/v2/export/' \
+              --data-urlencode 'q=category:ctiscan component.cpe:"cpe:/a:apache:http_server:-" ip.country:LU -dayago:1 -fields:ip.dest,tcp.dest,component.version,tag' \
+              > apache.ndjson
+
+  /bulk/discovery/{category}/asset:
+    post:
+      tags: [Discovery]
+      operationId: bulkDiscovery
+      summary: Run OQL over an asset inventory, category in the URL
+      description: |
+        Takes a text body with **one OQL line per line** (typically an asset
+        inventory: `domain:"example.com"`, `ip:"198.51.100.7"`...) and returns
+        NDJSON for the chosen category. Each line becomes
+        `category:<category> <line>`; any `-` options you need must be part of
+        the line. **Griffin View only.**
+
+        **Validate the inventory before sending; no line is ever rejected:**
+
+        - Blank lines are ignored.
+        - **Lines are not interpreted as comments.** A line such as `# my assets`
+          runs as a full-text query (`category:<category> # my assets`) and
+          returns unrelated documents. Strip comment lines client-side.
+        - A syntactically invalid line (e.g. an unterminated quote) returns no
+          results, so check quoting before sending.
+        - A bare value is expanded server-side. `example.com` becomes
+          `?onion: ?hostname: ?domain: ?subdomains:` plus `-orwildcard` on
+          `hostname`, `domain` and `subdomains`, which is much broader than
+          `domain:"example.com"`. A bare IP becomes `ip:<value>`.
+
+        While the server batches work it may emit **keepalive lines**,
+        `{"@category":"none","keepalive":"true","data":"running next batch"}`.
+        Skip them; a stream made only of keepalive lines means no results.
+        Treat the response body as NDJSON.
+
+        **ASM (primary use)**: `category=riskscan` or `category=vulnscan`, datascan
+        field model. Examples of a line: `domain:"example.com" tag:risk::exposeddatabase
+        -since:3M -fields:ip,port,hostname,tag,seen_date`.
+
+        - On `riskscan`, without `-since:` the latest state per asset is
+          returned; with `-since:<n>d|M`, **every scan in the window** is
+          returned. Other categories (e.g. `datascan`) return every scan in the
+          default 30-day window either way. Count assets (`ip:port`), not
+          documents.
+        - `riskscan` history is about 7 months (`-monthago:8` returns 0); use
+          `vulnscan` for older history, negative verdicts and the stored response.
+        - For `vulnscan`, add `-exists:cve` to keep only records that carry a CVE;
+          most vulnscan documents are negative or undecided verdicts.
+        - `unknownversion`, `maybevulnerable` and `partialversion` are undecided, not
+          "not vulnerable".
+
+        The category can be any queryable category (`datascan`, `resolver`, `ctl`,
+        ...). For `ctiscan`/`ctiurl`, write the lines in the ctiscan field model.
+      parameters:
+        - name: category
+          in: path
+          required: true
+          description: Category to query. `riskscan` and `vulnscan` are the ASM entry points.
+          schema:
+            type: string
+            enum: [riskscan, vulnscan, datascan, resolver, ctl, ctiscan, ctiurl]
+            example: riskscan
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              description: One OQL line per line.
+            examples:
+              inventory:
+                summary: Inventory of two assets
+                value: |
+                  domain:"example.com"
+                  ip:"198.51.100.7"
+      responses:
+        '200':
+          description: NDJSON stream; each line is a document of the requested category.
+          content:
+            application/x-ndjson:
+              schema:
+                type: string
+                description: NDJSON. Each line is one document (CtiscanDocument or DatascanDocument, depending on the category), or a KeepaliveLine to skip.
+                x-ndjson-item:
+                  anyOf:
+                    - $ref: '#/components/schemas/CtiscanDocument'
+                    - $ref: '#/components/schemas/DatascanDocument'
+                    - $ref: '#/components/schemas/KeepaliveLine'
+              examples:
+                vulnscan-vulnerable:
+                  summary: vulnscan verdict with a CVE
+                  value: |
+                    {"@category":"vulnscan","ip":"198.51.100.7","port":443,"hostname":["vpn.example.com"],"cve":["CVE-2026-00000"],"tag":["vulnerable","cisa::kev"],"seen_date":"2026-10-18","trackquery":"category:vulnscan domain:\"example.com\" -exists:cve"}
+        '400':
+          description: Missing or unknown key (`error` 2 / 14), a category not in your licence (`error` 13 "API access denied"), or an unknown category (`error` 22 "API endpoint not found"). Individual lines are not validated; see the description.
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '429':
+          $ref: '#/components/responses/RateLimited'
+      x-codeSamples:
+        - lang: Shell
+          label: curl
+          source: |
+            printf '%s\n' \
+              'domain:"example.com" tag:risk::exposeddatabase -since:3M -fields:ip,port,hostname,tag,seen_date' \
+              > inventory.txt
+            curl -H "Authorization: bearer $ONYPHE_API_KEY" \
+              -XPOST 'https://www.onyphe.io/api/v2/bulk/discovery/riskscan/asset' \
+              --data-binary @inventory.txt
+
+  /asd/pivot/query:
+    post:
+      tags: [ASD]
+      operationId: asdPivotQuery
+      summary: Distinct values of a field for an OQL query
+      description: |
+        Returns the **distinct values** of `field` across the documents matching
+        `query`, computed server-side with no paging. Use it to pivot: which
+        certificate organisations, issuers, hashes, ASNs... exist for this
+        population.
+
+        - Values come back **lowercased**. Feeding one back into OQL is fine
+          (matching is case-insensitive), but it is not the literal string observed.
+        - **No counts** are returned: it answers "which values", not "how many
+          of each". Pair with a Search `total` per value when the distribution matters.
+        - Name `field` in the model of the category in `query`: `cert.issuer.cn` for
+          `category:ctiscan`, `subject.organization` for `category:datascan`.
+        - `astask=true` creates a background task instead of answering inline;
+          error 1011 (*too many results, you should create a task*) tells you
+          to do so, and 1010 means the task is still running. Task polling is
+          documented separately and is out of scope here.
+
+        **Availability**: Griffin View only. Any other licence (e.g. ctiscan-only)
+        gets HTTP 400 `{"error":1001,"text":"API access denied"}`.
+
+        **ASD has its own endpoint, not its own key.** The ASD APIs are served
+        from `https://www.onyphe.io/api/v1`, separate from the v2 API, and take
+        the same API key in the `X-Api-Key` header.
+
+        Boolean options (`aslines`, `astask`) are the **strings** `"true"` /
+        `"false"`. A JSON boolean is silently ignored (`"aslines": true` returns
+        the JSON envelope, not NDJSON).
+
+        - With `aslines=true`, an empty population returns an empty body.
+          Omit `aslines` when the population may be empty to get `count: 0`
+          in the envelope.
+        - Unlike Search, a `field` from the wrong data model is an error:
+          HTTP 400, `error` 1006 ("No mapping found for [<field>]").
+      servers:
+        - url: https://www.onyphe.io/api/v1
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PivotQueryRequest'
+            examples:
+              ctiscan-cti:
+                summary: A. CTI pivot on ctiscan
+                value:
+                  query: "category:ctiscan app.device:c2 -dayago:1"
+                  field: cert.issuer.cn
+                  aslines: "true"
+              datascan-asm:
+                summary: B. certificate organisations for a domain (datascan model)
+                value:
+                  query: "category:datascan domain:example.com tag:cert::valid"
+                  field: subject.organization
+                  excludep: ["^let's encrypt"]
+      responses:
+        '200':
+          description: |
+            Distinct values. With `aslines=true` the body is NDJSON, one object per
+            distinct value, nested by the field path. Without it the body is the JSON envelope below, carrying the
+            same nested objects in `results`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PivotQueryResponse'
+              example:
+                count: 2
+                error: 0
+                results:
+                  - {cert: {issuer: {cn: example-c2-ca}}}
+                  - {cert: {issuer: {cn: example-router}}}
+                text: success
+                trusted: "true"
+            application/x-ndjson:
+              schema:
+                type: string
+                description: One JSON object per distinct value, when `aslines=true`.
+              example: |
+                {"cert":{"issuer":{"cn":"example-c2-ca"}}}
+                {"cert":{"issuer":{"cn":"example-router"}}}
+        '400':
+          description: '`{error, text}`. Missing key (1002), unknown key (1003 "user not found"), missing or invalid parameter (1002), wrong-model `field` (1006), too many results (1011). A licence without Griffin View (e.g. ctiscan-only) gets 1001 "API access denied" on every ASD endpoint.'
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Error'}
+        '429':
+          $ref: '#/components/responses/RateLimited'
+      x-codeSamples:
+        - lang: Shell
+          label: curl
+          source: |
+            curl -H 'Content-Type: application/json' -H "X-Api-Key: $ONYPHE_API_KEY" \
+              -XPOST 'https://www.onyphe.io/api/v1/asd/pivot/query' \
+              -d '{"query":"category:ctiscan app.device:c2 -dayago:1","field":"cert.issuer.cn","aslines":"true"}'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'v2 API key, sent as `Authorization: Bearer <key>` (scheme name case-insensitive).'
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: The same API key as `bearerAuth`, sent in the `X-Api-Key` header by the ASD v1 API (Griffin View only).
+
+  parameters:
+    Query:
+      name: q
+      in: query
+      required: true
+      description: |
+        OQL query, URL-encoded. Syntax `FILTER:VALUE`; OR is `?`, NOT is `!`.
+        Put `category:` first. Use `-fields:` to project.
+      schema: {type: string}
+      examples:
+        ctiscan:
+          summary: A. CTI / IP enrichment (ctiscan model)
+          value: 'category:ctiscan ip.dest:192.0.2.10 -fields:ip.dest,tcp.dest,app.protocol,tag'
+        riskscan:
+          summary: B. ASM (datascan model)
+          value: 'category:riskscan domain:example.com tag:risk::exposeddatabase -fields:ip,port,tag,seen_date'
+    TrackQuery:
+      name: trackquery
+      in: query
+      description: Add a `trackquery` field to each result, showing which OQL query found it.
+      schema: {type: boolean, default: false}
+
+  responses:
+    BadRequest:
+      description: 'Malformed OQL, unknown function, or a field/category not allowed (`error` 12); invalid parameter (6); missing key (2); unknown key (14). A valid field from the wrong data model returns 0 results instead of an error.'
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Error'}
+          example: {count: 0, error: 12, myip: 192.0.2.1, status: nok, text: 'unknown function: foo', took: 0, total: 0}
+    RateLimited:
+      description: Rate limit reached (about 1 request per second). Wait and retry.
+
+  schemas:
+    Error:
+      type: object
+      description: |
+        Error envelope, sent with HTTP 400. `error` is 0 on success. v2 codes are
+        listed in the API description (Errors). Codes published for the ASD APIs:
+        1 internal failure; 2 request timed out; 3 connection refused; 4 unable
+        to fork a new process; 1000 API not found; 1001 API access denied; 1002
+        parameter error; 1003 user not found; 1004 user get failed; 1005 no more
+        credits; 1006 search failed; 1007 task not found; 1008 creating task failed;
+        1009 getting task result failed; 1010 task in progress; 1011 too many
+        results, you should create a task; 1012 unable to kill task; 1013 resolver
+        failed. Other endpoints may return codes outside this list. Rate limiting
+        is signalled by HTTP 429.
+      properties:
+        error:
+          type: integer
+          description: 0 on success; see the codes above.
+        text: {type: string}
+        status: {type: string, example: nok, description: v2 only.}
+        count: {type: integer, description: v2 only.}
+        myip: {type: string, description: v2 only.}
+        took: {description: v2 only.}
+        total: {type: integer, description: v2 only.}
+      required: [error]
+
+    SearchResponse:
+      type: object
+      properties:
+        count: {type: integer, description: Number of results in this page.}
+        error: {type: integer, description: 0 on success.}
+        max_page: {type: integer}
+        myip: {type: string, description: Caller IP as seen by ONYPHE.}
+        page: {type: integer}
+        page_size: {type: integer}
+        results:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/CtiscanDocument'
+              - $ref: '#/components/schemas/DatascanDocument'
+        status: {type: string, example: ok}
+        text: {type: string, example: Success}
+        took:
+          description: Seconds; sometimes sent as a string (`"0.030"`).
+          oneOf:
+            - {type: number}
+            - {type: string}
+        total: {type: integer, description: 'Total matching documents; paging is capped at the 10,000 result ceiling.'}
+      required: [error, results]
+
+    PivotQueryRequest:
+      type: object
+      required: [query, field]
+      properties:
+        query: {type: string, description: OQL query to execute.}
+        field:
+          type: string
+          description: Field to pivot on, in the data model of the queried category.
+        aslines:
+          type: string
+          enum: ["true", "false"]
+          default: "false"
+          description: '"true" returns one JSON object per line (NDJSON); "false" returns the JSON envelope. Must be a string: a JSON boolean is ignored.'
+        astask:
+          type: string
+          enum: ["true", "false"]
+          default: "false"
+          description: '"true" creates a background task for later processing.'
+        includep:
+          description: One or more case-insensitive, unanchored regular expressions (`^`/`$` anchor explicitly); only values matching one are kept. A string or an array.
+          oneOf:
+            - {type: string}
+            - {type: array, items: {type: string}}
+        excludep:
+          description: One or more case-insensitive, unanchored regular expressions; values matching one are removed. A string or an array.
+          oneOf:
+            - {type: string}
+            - {type: array, items: {type: string}}
+
+    PivotQueryResponse:
+      type: object
+      properties:
+        count: {type: integer, description: Number of distinct values.}
+        error: {type: integer, description: 0 on success.}
+        results:
+          type: array
+          description: One object per distinct value, nested by the field path (e.g. `{"cert":{"issuer":{"cn":"r12"}}}`). Values are lowercased.
+          items: {type: object, additionalProperties: true}
+        text: {type: string, example: success}
+        trusted: {type: string, enum: ["true", "false"]}
+      required: [error]
+
+    KeepaliveLine:
+      type: object
+      description: Progress line emitted by Discovery while the server works through batches. Not a document; skip it.
+      properties:
+        "@category": {type: string, enum: [none]}
+        keepalive: {type: string, enum: ["true"]}
+        data: {type: string, example: running next batch}
+
+    CtiscanDocument:
+      type: object
+      description: |
+        **ctiscan / ctiurl data model** (IP enrichment and CTI). Layered, one document
+        per service (`ctiscan`) or URL (`ctiurl`). Only the most-used layers are listed;
+        `additionalProperties` is true. Single-field values are often arrays.
+      additionalProperties: true
+      properties:
+        "@category": {type: string, enum: [ctiscan, ctiurl]}
+        "@timestamp": {type: string, format: date-time}
+        seen_date: {type: string, format: date}
+        tag: {type: array, items: {type: string}}
+        source: {type: string}
+        ip:
+          type: object
+          description: Scanned address and its network context.
+          additionalProperties: true
+          properties:
+            dest: {type: string, description: Scanned IP address.}
+            asn: {type: string}
+            organization: {type: string}
+            country: {type: string}
+            subnet: {type: string}
+            netname: {type: string}
+        tcp:
+          type: object
+          additionalProperties: true
+          properties:
+            dest: {type: integer, description: Port of this service.}
+        services:
+          type: object
+          description: Every open port seen on the host.
+          additionalProperties: true
+          properties:
+            port: {type: array, items: {type: string}, description: 'Port numbers as strings ("443").'}
+        app:
+          type: object
+          additionalProperties: true
+          properties:
+            protocol: {type: string}
+            device: {type: array, items: {type: string}}
+            tls: {type: string, enum: ["true", "false"], description: "String, not a JSON boolean."}
+            data:
+              type: object
+              description: Raw application response, up to ~1 MB.
+              additionalProperties: true
+              properties:
+                text: {type: string}
+                length: {type: integer}
+                md5: {type: string}
+        component:
+          type: object
+          description: Detected products, vendors, versions and CPEs.
+          additionalProperties: true
+          properties:
+            cpe: {type: array, items: {type: string}}
+            product: {type: array, items: {type: string}}
+            vendor: {type: array, items: {type: string}}
+            version: {type: array, items: {type: string}}
+        http:
+          type: object
+          additionalProperties: true
+          properties:
+            code: {type: integer}
+            url: {type: string}
+        html:
+          type: object
+          additionalProperties: true
+          properties:
+            title:
+              type: object
+              properties:
+                text: {type: string, description: Full-text.}
+                raw: {type: string, description: Exact/regexp.}
+        cert:
+          type: object
+          additionalProperties: true
+          description: Certificate layer (subject, issuer, serial, fingerprints, validity).
+        dns:
+          type: object
+          additionalProperties: true
+          description: Forward and reverse DNS.
+        favicon:
+          type: object
+          additionalProperties: true
+        compat:
+          type: object
+          additionalProperties: true
+          description: Mirrors some datascan names to ease porting. Query-side names are still `compat.*`.
+        scanner:
+          type: object
+          additionalProperties: true
+        trackquery: {type: string}
+
+    DatascanDocument:
+      type: object
+      description: |
+        **datascan data model**, shared by `datascan`, `vulnscan` and `riskscan`
+        (ASM). Flat, with application sub-objects under `app`. `cve` and `cpe` are
+        root fields. `riskscan` documents carry `risk::*` tags; `vulnscan` documents
+        carry a verdict tag. `additionalProperties` is true.
+      additionalProperties: true
+      properties:
+        "@category": {type: string, enum: [datascan, vulnscan, riskscan]}
+        "@timestamp": {type: string, format: date-time}
+        seen_date: {type: string, format: date}
+        ip: {type: string}
+        ipv6: {type: string}
+        port: {type: integer}
+        transport: {type: string}
+        protocol: {type: string}
+        tls: {type: string, enum: ["true", "false"], description: "String, not a JSON boolean."}
+        status: {type: integer, description: Application status.}
+        hostname: {type: array, items: {type: string}, description: Deduplicated hostnames from DNS and certificates.}
+        domain: {type: array, items: {type: string}}
+        url: {type: string}
+        asn: {type: string}
+        organization: {type: string}
+        country: {type: string}
+        subnet: {type: string}
+        product: {type: string}
+        productvendor: {type: string}
+        productversion: {type: array, items: {type: string}}
+        cpe: {type: array, items: {type: string}}
+        cpecount: {type: integer}
+        cve: {type: array, items: {type: string}, description: CVE identifiers detected on the service (vulnscan; propagated to riskscan/datascan).}
+        cvecount: {type: integer}
+        tag:
+          type: array
+          items: {type: string}
+          description: |
+            Examples: `risk::exposeddatabase`, `risk::criticalcve` (riskscan);
+            `vulnerable`, `notvulnerable`, `maybevulnerable`, `unknownvulnerable`,
+            `vulnerableversion`, `notvulnerableversion`, `maybevulnerableversion`,
+            `partialversion`, `unknownversion`, `version` (vulnscan);
+            `cisa::kev`, `onyphe::kev`, `anssi::top10`, `nsa::top25`, `log4shell`;
+            `open` (unauthenticated access).
+        data: {type: string, description: 'Raw response, capped at 16384 bytes.'}
+        device:
+          type: object
+          additionalProperties: true
+          properties:
+            class: {type: string}
+            product: {type: string}
+            productvendor: {type: string}
+            productversion: {type: string}
+        app:
+          type: object
+          additionalProperties: true
+          description: Protocol sub-objects such as `app.http`, `app.smb`.
+        trackquery: {type: string}
